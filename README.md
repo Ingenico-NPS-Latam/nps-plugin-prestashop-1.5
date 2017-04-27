@@ -1,4 +1,4 @@
-# nps-plugin-prestashop-1.5
+# Prestashop 1.5 Plugin
 
 Introducción
 
