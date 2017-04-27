@@ -1,14 +1,14 @@
 # Prestashop 1.5 Plugin
 
-Introducción
+## Introducción
 
 NPS se integra fácilmente a Prestashop, otorgando la posibilidad de poder configurar su medio de pago en simples pasos. En sólo cuestión de minutos su carrito de compras quedará listo para comenzar a operar en línea.
 
-Consideraciones
+## Consideraciones
 
 Este paquete se encuentra certificado para la versión 1.5.0.15 a 1.5.6.2
 
-Modos de Integración
+## Modos de Integración
 
 Para el manejo de transacciones financieras el servidor PSP soporta dos mecanismos de integración en Prestashop con el método 3 partes:
 
