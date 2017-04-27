@@ -2,7 +2,7 @@
 
 ## Introducción
 
-NPS se integra fácilmente a Prestashop, otorgando la posibilidad de poder configurar su medio de pago en simples pasos. En sólo cuestión de minutos su carrito de compras quedará listo para comenzar a operar en línea.
+  NPS se integra fácilmente a Prestashop, otorgando la posibilidad de poder configurar su medio de pago en simples pasos. En sólo cuestión de minutos su carrito de compras quedará listo para comenzar a operar en línea.
 
 ## Consideraciones
 
@@ -12,16 +12,16 @@ Este paquete se encuentra certificado para la versión 1.5.0.15 a 1.5.6.2
 
 Para el manejo de transacciones financieras el servidor PSP soporta dos mecanismos de integración en Prestashop con el método 3 partes:
 
-•	PayOnline_3p
+•	PayOnline_3p  
 •	Authorize_3p / Capture 
 
-El método Authorize, precisa de una captura posterior desde el panel de administrador.
+El método Authorize, precisa de una captura posterior desde el panel de administrador.  
 El método Authorize_3p/Capture_3p actúa como PayOnline_3p donde la autorización y captura se realizan en la misma transacción.
 
 
-##Instalación
+## Instalación
 
-**Para realizar la siguiente configuración es requisito tener instalado PrestaShop: 
+** Para realizar la siguiente configuración es requisito tener instalado PrestaShop: 
 
 Junto con esta documentación usted recibirá un archivo comprimido con el módulo que se integrará a Prestashop.
 
