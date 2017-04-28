@@ -64,7 +64,7 @@ URL Servicio Web: https://implementacion.nps.com.ar/ws.php?wsdl
 Clave Secreta: mf7mw2Aal9ozRkrbYD9asZ7mGKx4t7LfmQPgSZHBg3A7nziJCrt5Q0rgLnkCu3pe
 
 
-##Configuraciones Avanzadas
+## Configuraciones Avanzadas
 
 En esta sección se explicará cómo configurar la moneda, el país, y las cuotas.
 
