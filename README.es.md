@@ -1,5 +1,7 @@
 # Prestashop 1.5 Plugin
 
+*Read this in other languages: [English](README.md), [Español](README.es.md)
+
 ## Introducción
 
   NPS se integra fácilmente a Prestashop, otorgando la posibilidad de poder configurar su medio de pago en simples pasos. En sólo cuestión de minutos su carrito de compras quedará listo para comenzar a operar en línea.
