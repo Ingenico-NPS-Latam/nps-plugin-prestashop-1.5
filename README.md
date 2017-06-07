@@ -21,13 +21,13 @@ Authorize method requires a subsequent capture from administration panel.
 The PayOnline_3p method acts as Authorize_3p / Capture_3p where authorization and capture are performed in the same transaction.        
 
 
-## Instalación
+## Install
 
 ** To make the following configuration it is necessary to have PrestaShop installed: 
 
 Along with this documentation you will be able to download the module and integrated it to Prestashop.
 
-1. Extract the file NPS.Prestashop.1.6.0.x.Connector.v1.01.006.tar.gz
+1. Extract the file NPS.Prestashop.1.5.0.15.-.1.5.6.2.Connector.v0.03.006.tar.gz
 
 2. Rename the admin folder with the same name of the admin folder that is in prestashop.
 
