@@ -1,6 +1,6 @@
 # Prestashop 1.5 Plugin
 
-*Read this in other languages: [English](README.md), [Español](README.es.md)
+*Read this in other languages: [English](README.md), [Español](README.es.md)*
 
 ## Introducción
 
@@ -15,7 +15,7 @@ Este paquete se encuentra certificado para la versión 1.5.0.15 a 1.5.6.2
 Para el manejo de transacciones financieras el servidor PSP soporta dos mecanismos de integración en Prestashop con el método 3 partes:
 
 •	PayOnline_3p  
-•	Authorize_3p / Capture 
+•	Authorize_3p / Capture
 
 El método Authorize, precisa de una captura posterior desde el panel de administrador.  
 El método Authorize_3p/Capture_3p actúa como PayOnline_3p donde la autorización y captura se realizan en la misma transacción.
@@ -23,7 +23,7 @@ El método Authorize_3p/Capture_3p actúa como PayOnline_3p donde la autorizaci�
 
 ## Instalación
 
-** Para realizar la siguiente configuración es requisito tener instalado PrestaShop: 
+** Para realizar la siguiente configuración es requisito tener instalado PrestaShop:
 
 Junto con esta documentación usted podra descargar el módulo que se integrará a Prestashop.
 
@@ -31,7 +31,7 @@ Junto con esta documentación usted podra descargar el módulo que se integrará
 
 2. Renombrar la carpeta admin con el nombre de la carpeta admin que está en prestashop.
 
-3. Copiar los cuatro directorios extraídas y en el directorio raíz de prestashop. 
+3. Copiar los cuatro directorios extraídas y en el directorio raíz de prestashop.
 
 4. Ingresar al Administrador de tienda de PrestaShop.
 
@@ -112,3 +112,8 @@ En esta sección se explicará cómo configurar la moneda, el país, y las cuota
 4.	Limpiar Caché nuevamente. (Menú: Parámetros Avanzados / Rendimiento / Limpiar la cache Smarty & Autoload:
 
   ![15](https://cloud.githubusercontent.com/assets/24914148/25497144/fb4aa83a-2b59-11e7-9e76-ad61298853c9.png)
+
+
+  ## Configurar varias Tiendas
+
+  Puede leer como configurar PrestaShop con varias Tiendas en la documentación de PrestaShop [aqui](http://doc.prestashop.com/display/PS15/Managing+Multiple+Shops)
