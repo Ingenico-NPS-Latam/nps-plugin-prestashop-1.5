@@ -261,7 +261,7 @@ class PSP_Client {
     }
     
     ksort($psp_parameters);
-    $secure_hash = md5(implode('',$psp_parameters).$secret_code);
+    $secure_hash = hash_hmac('sha256', implode('',$psp_parameters), $secret_code);
     $psp_parameters_orig['psp_SecureHash'] = $secure_hash;
     
     foreach($temp_psp_parameters as $k => $temp_psp_parameter) {
