@@ -887,7 +887,6 @@ BALBEFSD;
       array('value' => 61, 'name' => 'Nexo'),
       array('value' => 101, 'name' => 'Nuevacard'), */
 
-
 array('value' => 134, 'name' => 'Carta Automatica'),
 array('value' => 133, 'name' => 'Elebar'),
 array('value' => 132, 'name' => 'Ultra'),
