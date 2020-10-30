@@ -9,7 +9,7 @@ Copyright (c) 2002 NuSphere Corporation
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
+License as published by the Free Software Foundation; eitherservici
 version 2.1 of the License, or (at your option) any later version.
 
 This library is distributed in the hope that it will be useful,
@@ -222,7 +222,7 @@ class nusoap_base {
 	*
 	* @access	public
 	*/
-	function nusoap_base() {
+	function __construct() {
 		$this->debugLevel = $GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'];
 	}
 
@@ -887,6 +887,46 @@ class nusoap_base {
 	function __toString() {
 		return $this->varDump($this);
 	}
+
+    function cleanUpWsString($wsString){
+
+//		$entitiesToClean = [
+//			'&#38;', // &
+//			'&#40;', // (
+//			'&#41;', // )
+//			'&#47;', // /
+//			'&#60;', // <
+//			'&#62;', // >
+//			'&#91;', // [
+//			'&#92;', // \
+//			'&#93;', // ]
+//			'&#123;', // {
+//			'&#124;', // |
+//			'&#125;', // }
+//		];
+
+
+        // @NPS-2001 Fixing onload, onerror, onclick, etc.
+        $wsString = preg_replace('/(\b)(on\S+)=(\'.+?\'|\".+?\")/', '', $wsString);
+        // @NPS-2006 Removing the double braces to fix some issues with parsers
+        $wsString = preg_replace('/(\]]+)/', '', $wsString);
+
+		// @NPS-2005 Wrapping entities in CDATA so XML parser do not parse them
+//        preg_match_all('/(&#)(.*?)\;/', $wsString, $output_array);
+//        $fixed = $output_array[0];
+//        foreach($fixed as $key => $data){
+//        	if(in_array($data,$entitiesToClean)){
+//                $fixed[$key] = '<![CDATA['.$data.']]>';
+//			}else{
+//                $fixed[$key] = $data;
+//			}
+//        }
+//        $wsString = preg_replace_callback('/(&#)(.*?)\;/', function($matches) use (&$fixed) {
+//            return array_shift($fixed);
+//        }, $wsString);
+
+        return $wsString;
+    }
 }
 
 // XML Schema Datatype Helper Functions
@@ -1038,8 +1078,8 @@ class nusoap_fault extends nusoap_base {
     * @param string $faultstring human readable error message
     * @param mixed $faultdetail detail, typically a string or array of string
 	*/
-	function nusoap_fault($faultcode,$faultactor='',$faultstring='',$faultdetail=''){
-		parent::nusoap_base();
+	function __construct($faultcode,$faultactor='',$faultstring='',$faultdetail=''){
+		parent::__construct();
 		$this->faultcode = $faultcode;
 		$this->faultactor = $faultactor;
 		$this->faultstring = $faultstring;
@@ -1131,8 +1171,8 @@ class nusoap_xmlschema extends nusoap_base  {
 	* @param	string $namespaces namespaces defined in enclosing XML
 	* @access   public
 	*/
-	function nusoap_xmlschema($schema='',$xml='',$namespaces=array()){
-		parent::nusoap_base();
+	function __construct($schema='',$xml='',$namespaces=array()){
+		parent::__construct();
 		$this->debug('nusoap_xmlschema class instantiated, inside constructor');
 		// files
 		$this->schema = $schema;
@@ -2119,8 +2159,8 @@ class soapval extends nusoap_base {
 	* @param	mixed $attributes associative array of attributes to add to element serialization
 	* @access   public
 	*/
-  	function soapval($name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false) {
-		parent::nusoap_base();
+  	function __construct($name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false) {
+		parent::__construct();
 		$this->name = $name;
 		$this->type = $type;
 		$this->value = $value;
@@ -2211,8 +2251,8 @@ class soap_transport_http extends nusoap_base {
 	* @param boolean $use_curl Whether to try to force cURL use
 	* @access public
 	*/
-	function soap_transport_http($url, $curl_options = NULL, $use_curl = false){
-		parent::nusoap_base();
+	function __construct($url, $curl_options = NULL, $use_curl = false){
+		parent::__construct();
 		$this->debug("ctor url=$url use_curl=$use_curl curl_options:");
 		$this->appendDebug($this->varDump($curl_options));
 		$this->setURL($url);
@@ -3628,8 +3668,8 @@ class nusoap_server extends nusoap_base {
     * @param mixed $wsdl file path or URL (string), or wsdl instance (object)
 	* @access   public
 	*/
-	function nusoap_server($wsdl=false){
-		parent::nusoap_base();
+	function __construct($wsdl=false){
+		parent::__construct();
 		// turn on debugging?
 		global $debug;
 		global $HTTP_SERVER_VARS;
@@ -3694,6 +3734,8 @@ class nusoap_server extends nusoap_base {
 	function service($data){
 		global $HTTP_SERVER_VARS;
 
+		$data = $this->cleanUpWsString($data);
+        psp_log(Zend_Log::DEBUG, 'HTTP_RAW_POST_DATA in '.__FILE__.': '.var_export($data,true));
 		if (isset($_SERVER['REQUEST_METHOD'])) {
 			$rm = $_SERVER['REQUEST_METHOD'];
 		} elseif (isset($HTTP_SERVER_VARS['REQUEST_METHOD'])) {
@@ -4084,7 +4126,7 @@ class nusoap_server extends nusoap_base {
 				$call_arg = array(&$instance, $method);
 			}
 			if (is_array($this->methodparams)) {
-				$this->methodreturn = call_user_func_array($call_arg, array_values($this->methodparams));
+				$this->methodreturn = call_user_func_array($call_arg, array_copy(array_values($this->methodparams)));
 			} else {
 				$this->methodreturn = call_user_func_array($call_arg, array());
 			}
@@ -4225,8 +4267,11 @@ class nusoap_server extends nusoap_base {
         }
 		$this->outgoing_headers[] = "Server: $this->title Server v$this->version";
 		preg_match('/\$Revisio' . 'n: ([^ ]+)/', $this->revision, $rev);
-		$this->outgoing_headers[] = "X-SOAP-Server: $this->title/$this->version (".$rev[1].")";
-		// Let the Web server decide about this
+
+    // https://jira.techno.ingenico.com/browse/NPS-1603
+    //$this->outgoing_headers[] = "X-SOAP-Server: $this->title/$this->version (".$rev[1].")";
+		
+    // Let the Web server decide about this
 		//$this->outgoing_headers[] = "Connection: Close\r\n";
 		$payload = $this->getHTTPBody($payload);
 		$type = $this->getHTTPContentType();
@@ -4651,8 +4696,8 @@ class wsdl extends nusoap_base {
 	 * @param boolean $use_curl try to use cURL
      * @access public 
      */
-    function wsdl($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30,$curl_options=null,$use_curl=false){
-		parent::nusoap_base();
+    function __construct($wsdl = '',$proxyhost=false,$proxyport=false,$proxyusername=false,$proxypassword=false,$timeout=0,$response_timeout=30,$curl_options=null,$use_curl=false){
+		parent::__construct();
 		$this->debug("ctor wsdl=$wsdl timeout=$timeout response_timeout=$response_timeout");
         $this->proxyhost = $proxyhost;
         $this->proxyport = $proxyport;
@@ -5338,6 +5383,9 @@ class wsdl extends nusoap_base {
     function webDescription(){
     	global $HTTP_SERVER_VARS;
 
+    /**
+     * Se reemplaza $PHP_SELF por $SCRIPT_NAME
+     * 
 		if (isset($_SERVER)) {
 			$PHP_SELF = $_SERVER['PHP_SELF'];
 		} elseif (isset($HTTP_SERVER_VARS)) {
@@ -5345,34 +5393,48 @@ class wsdl extends nusoap_base {
 		} else {
 			$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
 		}
-
+     * 
+     */
+    
+    if (isset($_SERVER)) {
+			$SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
+		} elseif (isset($HTTP_SERVER_VARS)) {
+			$SCRIPT_NAME = $HTTP_SERVER_VARS['SCRIPT_NAME'];
+		} else {
+			$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
+		}
+    
 		$b = '
-		<html><head><title>'.$this->serviceName.'</title>
+		<html><head>
+                <!-- <link rel="shortcut icon" href="img/favicon.ico" /> -->
+                <title>'.$this->serviceName.'</title>
 		<style type="text/css">
-		    body    { font-family: arial,helvetica,clean,sans-serif; color: #000000; background-color: #D4D6D7; margin: 0px 0px 0px 0px; }
-		    p       { font-family: arial,helvetica,clean,sans-serif; color: #000000; margin-top: 0px; margin-bottom: 12px; font-size: small }
-		    pre { background-color: silver; padding: 5px; font-family: arial,helvetica,clean,sans-serif; font-size: x-small; color: #000000;}
+		    body    { font-family: arial,helvetica,clean,sans-serif; color: #000000; background-color: #2f4050; margin: 0px 0px 0px 0px; }
+		    p       { font-family: Monospace, arial,helvetica,clean,sans-serif; color: #FFF; margin-top: 20px; margin-bottom: 12px; font-size: small; font-size: 15px; }
+		    pre     { background-color: silver; padding: 5px; font-family: arial,helvetica,clean,sans-serif; font-size: x-small; color: #000000;}
 		    ul      { margin-top: 10px; margin-left: 0px; }
-		    li      { list-style-type: circle; margin-top: 10px; color: #000000; margin-bottom: 0.2em; margin-top: 0.2em; font-size: .95em; font-weight:normal}
+		    li      { list-style-type: circle; margin-top: 10px; color: #fff; margin-bottom: 0.2em; margin-top: 0.2em; font-size: 12px; font-weight:normal; padding: 1px; font-family: Monospace;}
+        hr      { border-width: 0px; height:1px; background: #555;  margin-top: 0.8em; width:99%;}
+        .hr2      { border-width: 0px; height:1px; background: #545;  margin-top: 0.8em; width:100%;}
 		    .content{
 			margin-left: 0px; padding-bottom: 2em; }
 		    .nav {
 			padding-top: 0px; padding-bottom: 10px; padding-left: 15px; font-size: .70em;
 			margin-top: 10px; margin-left: 0px; color: #000000;
-			background-color: #D4D6D7; width: 20%; margin-left: 20px; margin-top: 20px; }
+			background-color: #2f4050; width: 30%; margin-left: 20px; margin-top: 20px; }
 		    .title {
-			font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;; font-size: 26px; color: #ffffff;
-			background-color: #D4D6D7; margin-left: 0px;
-			padding-top: 10px; padding-bottom: 0px; padding-left: 15px;}
+			font-family: arial,helvetica,clean,sans-serif; font-size: 26px; color: #ffffff;
+			background-color: #2f4050; margin-left: 0px;
+			padding-top: 14px; padding-bottom: 0px; padding-left: 15px;}
 		    .hidden {
 			position: absolute; visibility: hidden; z-index: 200; left: 250px; top: 90px;
 			font-family: arial,helvetica,clean,sans-serif; overflow: hidden; width: 450; color: grey; border-style:dotted; border: 1px dashed rgb(0, 0, 0); padding: 3px;
 			padding: 20px; font-size: 12px; background-color: #F1F3F5;
 			layer-background-color:#FFFFFF; }
-		    a,a:active  { color: 666666; font-weight: normal; }
-		    a:visited   { color: #666666; font-weight: normal; }
-		    a:hover     { color: 666666; font-weight: normal; }
-                    .footer { text-align: center; font-size: x-small; color: #666; }
+		    a,a:active  { color: #d4d6d7; font-weight: normal; text-decoration: none; }
+		    a:visited   { color: #d4d6d7; font-weight: normal; text-decoration: none;}
+		    a:hover     { color: #FFF; font-weight: normal; text-decoration: none;}
+                    .footer { text-align: center; font-size: x-small; color: #eee; font-size: 11px; }
 		</style>
 		<script language="JavaScript" type="text/javascript">
 		<!--
@@ -5423,11 +5485,28 @@ class wsdl extends nusoap_base {
 		</head>
 		<body>
 		<div class=content>
-			<div class=title><img src=img/logo_psp_1.png></div>
+			<div class=title><img src=/img/INGENICO_EPAYMENTS_light_grey.png width=180></div>
+      <hr class=hr>
+      <br>
+      <br>
 			<div class=nav>
-				<p>Servicio: <a href="'.$PHP_SELF.'?wsdl">WSDL</a>
-				<br><br>Metodos disponibles:</p>
+				<p>Service <br><br><a href="'.$SCRIPT_NAME.'?wsdl" target="_blank">WSDL</a>
+        <hr class="hr2">
+        <p>Developers Zone <br><br><a href="https://developers.nps.com.ar" target="_blank">https://developers.nps.com.ar</a>
+        <hr class="hr2">
+        <p>GitHub <br><br><a href="https://github.com/Ingenico-NPS-Latam" target="_blank">https://github.com/Ingenico-NPS-Latam</a>
+        <hr class="hr2">
+				
+        <!--
+
+        Se comenta porque no se quieren mostrar cada uno de los metodos
+
+        <br><br>Methods</p>
 				<ul>';
+    
+    /**
+     *
+     *  
 				foreach($this->getOperations() as $op => $data){
 				    $b .= "<li><a href='#' onclick=\"popout();popup('$op')\">$op</a></li>";
 				    // create hidden div
@@ -5454,16 +5533,21 @@ class wsdl extends nusoap_base {
 				    }
 					$b .= '</div>';
 				}
+     * 
+     * 
+     */
 				$b .= '
 				<ul>
+        
+        -->
+
 			</div>
 		</div>
                 <div class="footer">
-                    <a href="https://www.pcisecuritystandards.org/" title="PCI" target="_blank"><img src="img/footer_logo1.png"></a>
-                    <a href="http://www.sub1.com.ar/" title="Sub-1" target="_blank"><img src="img/footer_logo2.png"></a>
-                    <a href="https://www.pcisecuritystandards.org/" title="PCI Validated" target="_blank"><img src="img/footer_logo3.png"></a>
+                    <a href="https://www.pcisecuritystandards.org/" title="PCI" target="_blank"><img src="/img/PCI-SSC-Logo-white-3.png" width=140></a>
+                    <a href="https://www.pcisecuritystandards.org/" title="PCI" target="_blank"><img src="/img/pci.png" width=105></a>
                     <br><br>
-                    Copyright &copy; 2011 PSP - Payment Service Platform '.PSP_VERSION.' All rights reserved
+                    Copyright &copy; '.date('Y').' PSP - Payment Service Platform '.PSP_VERSION.' All rights reserved
                 </div>
                 </body></html>';
 		return $b;
@@ -5478,7 +5562,9 @@ class wsdl extends nusoap_base {
 	*/
 	function serialize($debug = 0)
 	{
-		$xml = '<?xml version="1.0" encoding="ISO-8859-1"?>';
+		/* $xml = '<?xml version="1.0" encoding="ISO-8859-1"?>'; */
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    
 		$xml .= "\n<definitions";
 		foreach($this->namespaces as $k => $v) {
 			$xml .= " xmlns:$k=\"$v\"";
@@ -6136,7 +6222,7 @@ class wsdl extends nusoap_base {
 				$rows = sizeof($value);
 				$contents = '';
 				foreach($value as $k => $v) {
-					$this->debug("serializing array element: $k, $v of type: $typeDef[arrayType]");
+					$this->debug("serializing array element: $k, ".var_export($v,true)." of type: $typeDef[arrayType]");
 					//if (strpos($typeDef['arrayType'], ':') ) {
 					if (!in_array($typeDef['arrayType'],$this->typemap['http://www.w3.org/2001/XMLSchema'])) {
 					    $contents .= $this->serializeType('item', $typeDef['arrayType'], $v, $use);
@@ -6581,8 +6667,8 @@ class nusoap_parser extends nusoap_base {
 	* @param    string $decode_utf8 whether to decode UTF-8 to ISO-8859-1
 	* @access   public
 	*/
-	function nusoap_parser($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
-		parent::nusoap_base();
+	function __construct($xml,$encoding='UTF-8',$method='',$decode_utf8=true){
+		parent::__construct();
 		$this->xml = $xml;
 		$this->xml_encoding = $encoding;
 		$this->method = $method;
@@ -7259,8 +7345,8 @@ class nusoap_client extends nusoap_base  {
 	* @param	string $portName optional portName in WSDL document
 	* @access   public
 	*/
-	function nusoap_client($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30, $portName = ''){
-		parent::nusoap_base();
+	function __construct($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30, $portName = ''){
+		parent::__construct();
 		$this->endpoint = $endpoint;
 		$this->proxyhost = $proxyhost;
 		$this->proxyport = $proxyport;
@@ -8151,5 +8237,22 @@ if (!extension_loaded('soap')) {
 	 */
 	class soapclient extends nusoap_client {
 	}
+}
+if(!function_exists('array_copy')) {
+  function array_copy($source) {
+      $arr = array();
+
+      foreach ($source as $k => $element) {
+          if (is_array($element)) {
+              $arr[$k] = array_copy($element);
+          } elseif (is_object($element)) {
+              // make an object copy
+              $arr[$k] = clone $element;
+          } else {
+              $arr[$k] = $element;
+          }
+      }
+      return $arr;
+  }
 }
 ?>
